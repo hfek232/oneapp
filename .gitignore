@@ -1,0 +1,5 @@
+node_modules
+.stackblitzrc
+dist
+.env
+.DS_Store
