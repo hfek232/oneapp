@@ -3,7 +3,21 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner"; 
 import { Send } from "lucide-react";
 
+import { useEffect } from "react";
+import { supabase } from "../lib/supabase";
+
 export default function TelegramLogin() {
+  // 1. Auto-Sync Logic (Migration Truth)
+  useEffect(() => {
+    const tid = new URLSearchParams(window.location.search).get("tid");
+    if (tid) {
+      const syncUser = async () => {
+        const { error } = await supabase.from("profiles").upsert({ telegram_id: parseInt(tid) }, { onConflict: "telegram_id" });
+        if (!error) toast.success("Telegram Synced!");
+      };
+      syncUser();
+    }
+  }, []);
   const BOT_HANDLE = "App_yehfdhdbot"; 
 
   const handleTelegramAuth = () => {
