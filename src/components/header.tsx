@@ -8,13 +8,13 @@ export default function Header() {
   const [tid, setTid] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get initial session
+    // 1. Get initial session and check for Telegram ID
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setTid(new URLSearchParams(window.location.search).get("tid"));
     });
 
-    // Listen for changes (Login/Logout)
+    // 2. Listen for Auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setTid(new URLSearchParams(window.location.search).get("tid"));
@@ -33,6 +33,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* HIDE Sign In if session exists OR if we have a Telegram ID */}
         {(session || tid) ? (
           <UserNav />
         ) : (

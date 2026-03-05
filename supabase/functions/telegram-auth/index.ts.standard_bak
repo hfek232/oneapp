@@ -1,8 +1,42 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"; import { createClient } from "https://esm.sh/@supabase/supabase-js@2"; const BT = Deno.env.get("TELEGRAM_BOT_TOKEN"); const SU = Deno.env.get("SUPABASE_URL"); const SK = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"); const sb = createClient(SU, SK); serve(async (r) => { try { const { message: m } = await r.json(); if (!m?.from) return new Response("OK"); const { id, first_name: fn } = m.from; await sb.from("profiles").upsert({ telegram_id: id, first_name: fn }, { onConflict: "telegram_id" }); const link = `https://oneapp.et/auth?tid=${id}`; const text = `<b>🎟️ ONEAPP GROUP BUY: LIVE</b>
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-Hey <b>${fn}</b>, don't pay full price! Join the community to unlock <b>70% OFF</b> on entertainment.
+const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")
+const VERCEL_URL = "https://oneapp-xi.vercel.app" 
 
-💰 <b>Solo:</b> 500 ETB
-🔥 <b>Group Buy:</b> 150 ETB
+serve(async (req) => {
+  try {
+    const body = await req.json();
+    const message = body.message;
+    if (!message) return new Response("OK");
 
-<i>Tap below to secure your spot:</i>`; const keyboard = { inline_keyboard: [[{ text: "🛍️ JOIN GROUP & SIGN IN", url: `https://oneapp.et/auth?tid=${id}` }], [{ text: "🎮 PLAY & WIN", web_app: { url: "https://oneapp.et/games" } }, { text: "🤝 INVITE", switch_inline_query: "Join my Group Buy on OneApp! 🇪🇹" }]] }; await fetch(`https://api.telegram.org/bot${BT}/sendMessage`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: m.chat.id, text, parse_mode: "HTML", reply_markup: keyboard }) }); return new Response("OK"); } catch (e) { return new Response(e.message); } })
+    const chatId = message.chat.id;
+    const id = message.from.id;
+    const fn = message.from.first_name || "User";
+
+    const text = `<b>⚡️ ADDIS NEON EXCLUSIVE</b>\n\n` +
+                 `Welcome <b>${fn.toUpperCase()}</b>!\n\n` +
+                 `You are authorized to enter the Marketplace.\n\n` +
+                 `<i>Click the button below to sign in instantly.</i>`;
+
+    const keyboard = {
+      inline_keyboard: [
+        [{ text: "🚀 SIGN IN TO ONEAPP", url: `${VERCEL_URL}/?tid=${id}` }]
+      ]
+    };
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: "HTML",
+        reply_markup: keyboard
+      })
+    });
+
+    return new Response("OK");
+  } catch (e) {
+    return new Response("Error", { status: 500 });
+  }
+})

@@ -1,4 +1,19 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"; import { createClient } from "https://esm.sh/@supabase/supabase-js@2"; const BT = Deno.env.get("TELEGRAM_BOT_TOKEN"); const SU = Deno.env.get("SUPABASE_URL"); const SK = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"); const sb = createClient(SU, SK); serve(async (r) => { try { const { message: m } = await r.json(); if (!m?.from) return new Response("OK"); const { id, first_name: fn } = m.from; await sb.from("profiles").upsert({ telegram_id: id, first_name: fn }, { onConflict: "telegram_id" }); const link = `https://oneapp-xi.vercel.app/?tid=${id}`; const text = `<b>🔥 LIMITED TIME GROUP BUY</b> 🇪🇹
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+
+const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")
+const VERCEL_URL = "https://oneapp-xi.vercel.app" 
+
+serve(async (req) => {
+  try {
+    const body = await req.json();
+    const message = body.message;
+    if (!message) return new Response("OK");
+
+    const chatId = message.chat.id;
+    const id = message.from.id;
+    const fn = message.from.first_name || "User";
+
+    const text = `<b>🔥 LIMITED TIME GROUP BUY</b> 🇪🇹
 
 Welcome <b>${fn.toUpperCase()}</b>! You've been invited to unlock exclusive community pricing.
 
@@ -7,4 +22,23 @@ Welcome <b>${fn.toUpperCase()}</b>! You've been invited to unlock exclusive comm
 ✨ <b>Group Price:</b> <b>150 ETB</b>
 👥 <b>Status:</b> 3/5 Spots Filled (Hurry!)
 
-<i>Join the group now to claim your 70% discount.</i>`; const keyboard = { inline_keyboard: [[{ text: "🛍️ JOIN GROUP & CLAIM DISCOUNT", url: link }], [{ text: "🎮 PLAY & EARN", url: `${link}&task=games` }, { text: "🤝 SHARE DEAL", switch_inline_query: "🔥 Get 70% off with me on OneApp!" }], [{ text: "🛡️ Secure Payment Verified", callback_data: "security_info" }]] }; await fetch(`https://api.telegram.org/bot${BT}/sendMessage`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: m.chat.id, text, parse_mode: "HTML", reply_markup: keyboard }) }); return new Response("OK"); } catch (e) { return new Response(e.message); } })
+<i>Join the group now to claim your 70% discount.</i>`;
+
+    const keyboard = { inline_keyboard: [[{ text: "🛍️ JOIN GROUP & CLAIM DISCOUNT", url: link }], [{ text: "🎮 PLAY & EARN", url: `${link}&task=games` }, { text: "🤝 SHARE DEAL", switch_inline_query: "🔥 Get 70% off with me on OneApp!" }], [{ text: "🛡️ Secure Payment Verified", callback_data: "security_info" }]] };
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: "HTML",
+        reply_markup: keyboard
+      })
+    });
+
+    return new Response("OK");
+  } catch (e) {
+    return new Response("Error", { status: 500 });
+  }
+})

@@ -11,28 +11,32 @@ export default function App() {
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    // 1. TELEGRAM AUTH HANDSHAKE (Migration Truth)
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
-    
-    if (tid) {
-      console.log("Telegram Auth Detected:", tid);
-      localStorage.setItem("oneapp_tid", tid);
-      setIsGuest(true);
-      setIsGuest(true);
-      
-      // Clean URL and show success without full reload loop
-      window.history.replaceState({}, document.title, window.location.pathname);
-      alert("✅ Telegram Linked Successfully!");
-    } else if (localStorage.getItem("oneapp_tid")) {
-      setIsGuest(true);
-    }
+    const initAuth = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const tid = params.get("tid");
 
-    // 2. SUPABASE SESSION CHECK
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+      if (tid) {
+        console.log("Telegram Auth Detected:", tid);
+        localStorage.setItem("oneapp_tid", tid);
+        
+        const { error } = await supabase.auth.signInAnonymously({
+          options: { data: { telegram_id: tid } }
+        });
+
+        if (!error) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      setSession(initialSession);
+      if (initialSession || localStorage.getItem("oneapp_tid")) {
+        setIsGuest(true);
+      }
       setLoading(false);
-    });
+    };
+
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
