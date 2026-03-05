@@ -19,6 +19,7 @@ export default function App() {
       console.log("Telegram Auth Detected:", tid);
       localStorage.setItem("oneapp_tid", tid);
       setIsGuest(true);
+      setIsGuest(true);
       
       // Clean URL and show success without full reload loop
       window.history.replaceState({}, document.title, window.location.pathname);
