@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import AuthComponent from './components/AuthComponent';
 import { PrivacyPolicy, Terms, DataDeletion } from "./components/LegalRoutes";
+import TelegramLogin from "./components/TelegramLogin";
 import MarketplaceShell from './components/marketplace-shell';
 import { Toaster } from 'sonner';
 
@@ -11,6 +12,12 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      console.log("✅ Telegram Auth Sync:", tid);
+      setIsGuest(true); // The Pinduoduo Bypass
+    }
     // Catch Telegram ID from URL (Migration Truth)
     const params = new URLSearchParams(window.location.search);
     const tid = params.get("tid");
