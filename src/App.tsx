@@ -7,6 +7,20 @@ import MarketplaceShell from './components/marketplace-shell';
 import { Toaster } from 'sonner';
 
 export default function App() {
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      console.log("Found Telegram ID:", tid);
+      localStorage.setItem("oneapp_tid", tid);
+      // Clear the URL for a clean look
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Trigger a page refresh to apply "Logged In" state
+      window.location.reload();
+    }
+  }, []);
+  // -------------------------------------------
   const [session, setSession] = useState<any>(null);
   const [isGuest, setIsGuest] = useState(!!new URLSearchParams(window.location.search).get("tid")); // The Pinduoduo Bypass State
   const [loading, setLoading] = useState(true);
