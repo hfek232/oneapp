@@ -7,10 +7,18 @@ import MarketplaceShell from './components/marketplace-shell';
 import { Toaster } from 'sonner';
 
 export default function App() {
-  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tid = params.get("tid");
+    if (tid) {
+      localStorage.setItem("oneapp_tid", tid);
+      alert("✅ Telegram Linked Successfully!");
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
+  }, []);
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
     if (tid) {
       localStorage.setItem("oneapp_tid", tid);
       alert("✅ Telegram Linked Successfully! Welcome to OneApp.");
@@ -20,20 +28,6 @@ export default function App() {
   }, []);
   // --- TELEGRAM AUTH SYNC (Migration Truth) ---
   React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
-    if (tid) {
-      localStorage.setItem("oneapp_tid", tid);
-      alert("✅ Telegram Linked Successfully! Welcome to OneApp.");
-      // Clear URL and refresh to apply state
-      window.history.replaceState({}, document.title, window.location.pathname);
-      window.location.reload();
-    }
-  }, []);
-  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
-  React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
     if (tid) {
       localStorage.setItem("oneapp_tid", tid);
       alert("✅ Telegram Linked Successfully! Welcome to OneApp.");
@@ -44,8 +38,16 @@ export default function App() {
   }, []);
   // --- TELEGRAM AUTH SYNC (Migration Truth) ---
   React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
+    if (tid) {
+      localStorage.setItem("oneapp_tid", tid);
+      alert("✅ Telegram Linked Successfully! Welcome to OneApp.");
+      // Clear URL and refresh to apply state
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
+  }, []);
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
     if (tid) {
       console.log("Found Telegram ID:", tid);
       localStorage.setItem("oneapp_tid", tid);
@@ -58,26 +60,17 @@ export default function App() {
   }, []);
   // -------------------------------------------
   const [session, setSession] = useState<any>(null);
-  const [isGuest, setIsGuest] = useState(!!new URLSearchParams(window.location.search).get("tid")); // The Pinduoduo Bypass State
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
     if (tid) {
       console.log("✅ Telegram Auth Sync:", tid);
       setIsGuest(true); // The Pinduoduo Bypass
     }
-    // Catch Telegram ID from URL (Migration Truth)
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
     if (tid) {
       console.log("Telegram Auth Detected:", tid);
       setIsGuest(true);
     }
-    // 1. Catch Telegram ID from URL (Migration Truth)
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("tid");
     if (tid) {
       console.log("Telegram Auth Detected:", tid);
       setIsGuest(true);
