@@ -1,0 +1,11 @@
+# ONEAPP MIGRATION TRUTH - MARCH 5, 2026
+# STATUS: FIXED - REDIRECT LOOP RESOLVED
+
+1. BOT REDIRECT: Changed from /auth?tid= to /?tid= in Edge Function.
+2. FRONTEND BYPASS: Injected useEffect in App.tsx to catch 'tid' and set isGuest(true).
+3. IDENTITY SYNC: Updated TelegramLogin.tsx to upsert tid to Supabase profiles.
+4. UI HYDRATION: Updated Header.tsx to hide "Sign In" button if tid exists.
+5. GIT AUTH: Fixed root/user credential mismatch in Termux.
+
+CURRENT TRUTH: The app is now "Path Agnostic." Any entry with a ?tid= param 
+automatically grants Marketplace access and syncs user identity.
