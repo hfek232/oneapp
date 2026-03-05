@@ -8,7 +8,7 @@ import { Toaster } from 'sonner';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
-  const [isGuest, setIsGuest] = useState(false); // The Pinduoduo Bypass State
+  const [isGuest, setIsGuest] = useState(!!new URLSearchParams(window.location.search).get("tid")); // The Pinduoduo Bypass State
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
