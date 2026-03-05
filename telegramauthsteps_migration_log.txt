@@ -9,3 +9,4 @@
 
 CURRENT TRUTH: The app is now "Path Agnostic." Any entry with a ?tid= param 
 automatically grants Marketplace access and syncs user identity.
+[2026-03-05] UX Update: Added success alert and session establishment to App.tsx
