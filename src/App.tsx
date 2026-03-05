@@ -12,6 +12,38 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const tid = params.get("tid");
     if (tid) {
+      localStorage.setItem("oneapp_tid", tid);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
+  }, []);
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      localStorage.setItem("oneapp_tid", tid);
+      // Clear URL and refresh to apply state
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
+  }, []);
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      localStorage.setItem("oneapp_tid", tid);
+      // Clear URL and refresh to apply state
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
+  }, []);
+  // --- TELEGRAM AUTH SYNC (Migration Truth) ---
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
       console.log("Found Telegram ID:", tid);
       localStorage.setItem("oneapp_tid", tid);
       // Clear the URL for a clean look
