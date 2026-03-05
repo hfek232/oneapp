@@ -11,6 +11,20 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Catch Telegram ID from URL (Migration Truth)
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      console.log("Telegram Auth Detected:", tid);
+      setIsGuest(true);
+    }
+    // 1. Catch Telegram ID from URL (Migration Truth)
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("tid");
+    if (tid) {
+      console.log("Telegram Auth Detected:", tid);
+      setIsGuest(true);
+    }
     // telegramauthsteps: Check initial session and listen for changes
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
