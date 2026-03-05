@@ -1,0 +1,79 @@
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { Settings, Wallet, CreditCard, Box, Truck, Star, Heart, History, Bell, ChevronRight } from 'lucide-react';
+
+export function ProfileView() {
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    async function getProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        setProfile(data || { full_name: 'Finkisa Glomsa' });
+      }
+    }
+    getProfile();
+  }, []);
+
+  return (
+    <div className="bg-[#f4f4f4] min-h-screen pb-24">
+      {/* Top Header Section */}
+      <div className="bg-white px-4 py-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 bg-[#ff6000] rounded-full flex items-center justify-center text-white text-2xl font-bold border-2 border-orange-200">
+            {profile?.full_name?.charAt(0) || 'F'}
+          </div>
+          <div>
+            <h2 className="font-bold text-lg text-slate-900">{profile?.full_name}</h2>
+            <div className="flex items-center text-[11px] text-slate-400 mt-1">
+              Add Address <ChevronRight size={12} />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4 text-slate-500">
+          <button className="flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full text-xs">
+             <Settings size={14} /> Settings
+          </button>
+        </div>
+      </div>
+
+      {/* Order Status Grid */}
+      <div className="bg-white mt-2 border-y border-slate-100">
+        <div className="flex justify-between items-center px-4 py-3 border-b border-slate-50 text-sm font-bold">
+          My Orders <span className="text-[11px] font-normal text-slate-400">View All ></span>
+        </div>
+        <div className="grid grid-cols-5 py-4 text-center">
+          <StatusIcon icon={<CreditCard size={22}/>} label="To Pay" />
+          <StatusIcon icon={<History size={22}/>} label="To Share" />
+          <StatusIcon icon={<Box size={22}/>} label="Packing" />
+          <StatusIcon icon={<Truck size={22}/>} label="Shipped" />
+          <StatusIcon icon={<Star size={22}/>} label="Reviews" />
+        </div>
+      </div>
+
+      {/* Tools Section */}
+      <div className="bg-white mt-2 grid grid-cols-4 gap-y-6 py-6 text-center border-y border-slate-100">
+        <ToolItem icon={<Heart className="text-red-500" size={24} />} label="Wishlist" count="12" />
+        <ToolItem icon={<Wallet className="text-orange-500" size={24} />} label="Wallet" count="0.00" />
+        <ToolItem icon={<CreditCard className="text-blue-500" size={24} />} label="Coupons" count="3" />
+        <ToolItem icon={<History className="text-green-500" size={24} />} label="Browsed" count="45" />
+      </div>
+    </div>
+  );
+}
+
+const StatusIcon = ({ icon, label }: any) => (
+  <div className="flex flex-col items-center gap-1 text-slate-600">
+    {icon}
+    <span className="text-[10px]">{label}</span>
+  </div>
+);
+
+const ToolItem = ({ icon, label, count }: any) => (
+  <div className="flex flex-col items-center gap-1">
+    {icon}
+    <span className="text-xs font-bold text-slate-800">{count}</span>
+    <span className="text-[10px] text-slate-400">{label}</span>
+  </div>
+);

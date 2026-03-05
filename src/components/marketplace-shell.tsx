@@ -17,8 +17,7 @@ export default function MarketplaceShell() {
           <ProductGrid />
         </main>
       </div>
-      <FilterDrawer open={filtersOpen} onOpenChange={setFiltersOpen} />
-      <BottomBar />
+      <FilterDrawer open={filtersOpen} onOpenChange></FilterDrawer>
     </div>
   )
 }

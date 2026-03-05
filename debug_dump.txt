@@ -1,0 +1,170 @@
+--- SRC TREE ---
+src
+├── App.css
+├── App.tsx
+├── App.tsx.backup
+├── App.tsx.bak
+├── App_BAK.tsx
+├── App_backup_2026-03-01_18-15.tsx
+├── App_backup_20260301_233718.tsx
+├── AuthComponent_BAK.tsx
+├── EmailAuthForm.tsx
+├── assets
+│   └── react.svg
+├── components
+│   ├── AuthComponent.tsx
+│   ├── CustomAuthPage.tsx
+│   ├── CustomAuthPage_BAK.tsx
+│   ├── DealsNav.tsx
+│   ├── DealsNav.tsx.bak
+│   ├── DealsNav.tsx.before-visible-sep
+│   ├── DealsNav.tsx.white-bg-backup
+│   ├── EmailAuthForm.tsx
+│   ├── IdentityManager.tsx
+│   ├── NeonCollage.tsx
+│   ├── TelegramLogin.tsx
+│   ├── UserNav.tsx
+│   ├── backups
+│   ├── bottom-bar.tsx
+│   ├── filter-drawer.tsx
+│   ├── header.tsx
+│   ├── marketplace-shell.tsx
+│   ├── marketplace-shell.tsx.bak
+│   ├── one-local.tsx
+│   ├── one-market.tsx
+│   ├── product-card.tsx
+│   ├── product-grid.tsx
+│   ├── profile-view.tsx
+│   ├── quick-view.tsx
+│   ├── social-feed.tsx
+│   └── ui
+│       ├── accordion.tsx
+│       ├── aspect-ratio.tsx
+│       ├── avatar.tsx
+│       ├── badge.tsx
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── carousel.tsx
+│       ├── dialog.tsx
+│       ├── drawer.tsx
+│       ├── input.tsx
+│       ├── navigation-menu.tsx
+│       ├── scroll-area.tsx
+│       ├── separator.tsx
+│       ├── sonner.tsx
+│       └── tabs.tsx
+├── index.css
+├── lib
+│   ├── supabase.ts
+│   └── utils.ts
+├── logger.ts
+├── main.tsx
+└── pages
+    ├── Dashboard.tsx
+    └── PhoneAuth.tsx
+
+7 directories, 56 files
+
+--- SRC/APP.TSX ---
+import { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase'; 
+
+function Auth() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) setError(error.message);
+    else alert('Check your email for confirmation!');
+    setLoading(false);
+  };
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setError(error.message);
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '400px', margin: 'auto', color: 'black' }}>
+      <h1>Login / Sign Up</h1>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ display: 'block', margin: '1rem 0', width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ display: 'block', margin: '1rem 0', width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+      />
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button onClick={handleLogin} disabled={loading} style={{ flex: 1, padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
+          {loading ? '...' : 'Login'}
+        </button>
+        <button onClick={handleSignUp} disabled={loading} style={{ flex: 1, padding: '10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
+          {loading ? '...' : 'Sign Up'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Dashboard() {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  return (
+    <div style={{ padding: '2rem', textAlign: 'center', color: 'black' }}>
+      <h1>Welcome! You are logged in.</h1>
+      <button onClick={handleLogout} style={{ padding: '10px 20px' }}>Logout</button>
+    </div>
+  );
+}
+
+export default function App() {
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    }).catch((err) => {
+      console.error('Session error:', err);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: 'black' }}>
+        Checking authentication...
+      </div>
+    );
+  }
+
+  return session ? <Dashboard /> : <Auth />;
+}
+
+--- SRC/COMPONENTS/AUTH.TSX ---
+Auth file not found in standard paths.
