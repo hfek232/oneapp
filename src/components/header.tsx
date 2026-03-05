@@ -5,16 +5,19 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const [session, setSession] = useState<any>(null);
+  const [tid, setTid] = useState<string | null>(null);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setTid(new URLSearchParams(window.location.search).get("tid"));
     });
 
     // Listen for changes (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setTid(new URLSearchParams(window.location.search).get("tid"));
     });
 
     return () => subscription.unsubscribe();
@@ -30,7 +33,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        {session ? (
+        {(session || tid) ? (
           <UserNav />
         ) : (
           <Button 
