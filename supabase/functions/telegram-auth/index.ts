@@ -15,8 +15,15 @@ Deno.serve(async (req) => {
     const { id, first_name } = m.from;
     const link = `https://oneapp-xi.vercel.app/?tid=${id}`;
 
-    // Amharic Onboarding Message
-    const text = `<b>እንኳን ደህና መጡ ${first_name}! 🌟</b>\n\nየ <b>70% ቅናሽ</b> ኩፖንዎ አሁን ዝግጁ ነው።\n\n💰 <b>ዋጋ:</b> <s>500 ETB</s> → <b>150 ETB</b>\n\n<i>ይህ አቅርቦት ለተወሰነ ጊዜ ብቻ ነው!</i>`;
+    // URGENCY: Calculate 2 hours from now
+    const expiryTime = "2:00:00"; 
+
+    // Amharic Onboarding Message with Countdown
+    const text = `<b>እንኳን ደህና መጡ ${first_name}! 🌟</b>\n\n` +
+                 `የ <b>70% ቅናሽ</b> ኩፖንዎ አሁን ዝግጁ ነው።\n\n` +
+                 `💰 <b>ዋጋ:</b> <s>500 ETB</s> → <b>150 ETB</b>\n` +
+                 `⏳ <b>የሚቆይበት ጊዜ:</b> <code>${expiryTime}</code> ቀርቷል!\n\n` +
+                 `<i>ይህ ቅናሽ በ 2 ሰዓት ውስጥ ይጠናቀቃል!</i>`;
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
@@ -26,7 +33,10 @@ Deno.serve(async (req) => {
         text: text,
         parse_mode: "HTML",
         reply_markup: {
-          inline_keyboard: [[{ text: "🛍️ ቅናሹን አሁኑኑ ያግኙ (CLAIM DISCOUNT)", url: link }]]
+          inline_keyboard: [
+            [{ text: "🛍️ ቅናሹን አሁኑኑ ያግኙ (CLAIM NOW)", url: link }],
+            [{ text: "⏰ አስታውሰኝ (REMIND ME)", callback_data: "remind" }]
+          ]
         }
       })
     });
