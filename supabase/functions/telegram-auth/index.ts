@@ -1,44 +1,38 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")
-const VERCEL_URL = "https://oneapp-xi.vercel.app" 
+const BOT_TOKEN = "8682825900:AAEVGTyLUp5GTuGWEqo33xnyh-zPUMlx55k";
+const SUPABASE_URL = "https://ysvzgkpzygnjpmckljaa.supabase.co";
+const SUPABASE_SERVICE_ROLE = "sbp_43200663c51663d1a2ab8bfb2ccfbf8cf3a9c651"; 
 
-serve(async (req) => {
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+
+Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    const message = body.message;
-    if (!message) return new Response("OK");
+    const m = body.message || body.edited_message;
+    if (!m || !m.from) return new Response("OK");
 
-    const chatId = message.chat.id;
-    const id = message.from.id;
-    const fn = message.from.first_name || "User";
+    const { id, first_name } = m.from;
+    const link = `https://oneapp-xi.vercel.app/?tid=${id}`;
 
-    const text = `<b>🔥 LIMITED TIME GROUP BUY</b> 🇪🇹
-
-Welcome <b>${fn.toUpperCase()}</b>! You've been invited to unlock exclusive community pricing.
-
-📦 <b>Product:</b> Entertainment Premium Pass
-💰 <b>Retail Price:</b> <s>500 ETB</s>
-✨ <b>Group Price:</b> <b>150 ETB</b>
-👥 <b>Status:</b> 3/5 Spots Filled (Hurry!)
-
-<i>Join the group now to claim your 70% discount.</i>`;
-
-    const keyboard = { inline_keyboard: [[{ text: "🛍️ JOIN GROUP & CLAIM DISCOUNT", url: link }], [{ text: "🎮 PLAY & EARN", url: `${link}&task=games` }, { text: "🤝 SHARE DEAL", switch_inline_query: "🔥 Get 70% off with me on OneApp!" }], [{ text: "🛡️ Secure Payment Verified", callback_data: "security_info" }]] };
+    // Amharic Onboarding Message
+    const text = `<b>እንኳን ደህና መጡ ${first_name}! 🌟</b>\n\nየ <b>70% ቅናሽ</b> ኩፖንዎ አሁን ዝግጁ ነው።\n\n💰 <b>ዋጋ:</b> <s>500 ETB</s> → <b>150 ETB</b>\n\n<i>ይህ አቅርቦት ለተወሰነ ጊዜ ብቻ ነው!</i>`;
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id: chatId,
+        chat_id: m.chat.id,
         text: text,
         parse_mode: "HTML",
-        reply_markup: keyboard
+        reply_markup: {
+          inline_keyboard: [[{ text: "🛍️ ቅናሹን አሁኑኑ ያግኙ (CLAIM DISCOUNT)", url: link }]]
+        }
       })
     });
 
     return new Response("OK");
   } catch (e) {
-    return new Response("Error", { status: 500 });
+    return new Response("OK");
   }
-})
+});
