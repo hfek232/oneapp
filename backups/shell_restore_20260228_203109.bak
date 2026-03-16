@@ -1,6 +1,0 @@
-import React from "react";
-import { BottomNav } from "./bottom-bar";
-
-export default function MarketplaceShell() {
-  return <BottomNav />;
-}
