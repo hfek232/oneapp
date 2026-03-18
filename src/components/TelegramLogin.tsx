@@ -18,7 +18,7 @@ export default function TelegramLogin() {
       syncUser();
     }
   }, []);
-  const BOT_HANDLE = "App_yehfdhdbot"; 
+  const BOT_HANDLE = "OneAppEthioBot"; 
 
   const handleTelegramAuth = () => {
     // Sonner Toast: Simple and clean

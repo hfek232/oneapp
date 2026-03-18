@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     if (!m || !m.from) return new Response("OK");
 
     const { id, first_name } = m.from;
-    const link = `https://t.me/OneAppEthioBot/app?startapp=${id}`;
+    const link = `https://t.me/App_yehfdhdbot/Habirna?startapp=${id}`;
 
     // URGENCY: Calculate 2 hours from now
     const expiryTime = "2:00:00"; 

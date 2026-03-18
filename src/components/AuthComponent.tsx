@@ -39,7 +39,7 @@ export default function AuthComponent({ onSkip }: AuthProps) {
       }
     } else {
       // Redirect to Bot to enter the Mini App environment
-      window.location.href = "https://t.me/App_yehfdhdbot/oneapp";
+      window.location.href = "https://t.me/OneAppEthioBot/Habirna";
     }
   };
 
