@@ -1,3 +1,12 @@
+import os
+from pathlib import Path
+
+# --- THE CONFIGURATION ---
+BOT_USERNAME = "App_yehfdhdbot"
+
+files = {
+    # 1. THE EDGE FUNCTION (Deno) - The "Brain"
+    "supabase/functions/telegram-auth/index.ts": r'''
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
@@ -71,3 +80,45 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders })
   }
 })
+''',
+
+    # 2. THE FRONTEND HOOK (TanStack) - The "Permanent Session" manager
+    "src/features/auth/hooks/useTelegramAuth.ts": r'''
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+
+export const useTelegramAuth = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (telegramUser: any) => {
+      const { data, error } = await supabase.functions.invoke('telegram-auth', { body: telegramUser });
+      if (error) throw error;
+
+      // setSession makes the login PERMANENT in localStorage
+      const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
+      return sessionData.user;
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(['auth-user'], user);
+      console.log("Welcome to OneApp Marketplace, ", user?.user_metadata?.username);
+    }
+  });
+};
+'''
+}
+
+def run():
+    for p, content in files.items():
+        path = Path(p)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content.strip())
+        print(f"✅ Setup: {p}")
+
+if __name__ == "__main__":
+    run()
