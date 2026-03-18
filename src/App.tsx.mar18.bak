@@ -6,59 +6,41 @@ import MarketplaceShell from './components/marketplace-shell';
 import { Toaster } from 'sonner';
 
 export default function App() {
-  // 1. Define missing state variables
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        const tg = (window as any).Telegram?.WebApp;
-        const user = tg?.initDataUnsafe?.user;
-        const tid = user?.id?.toString();
+      const params = new URLSearchParams(window.location.search);
+      const tid = params.get("tid");
 
-        if (tid) {
-          localStorage.setItem("oneapp_tid", tid);
-          
-          const { error } = await supabase.auth.signInAnonymously({
-            options: { 
-              data: { 
-                telegram_id: tid,
-                username: user?.username,
-                first_name: user?.first_name
-              } 
-            }
-          });
-
-          if (!error) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            tg?.ready(); 
-            if (tg.isVersionAtLeast('8.0')) {
-              tg.requestFullscreen();
-            }
-          }
-        }
-
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        setSession(initialSession);
+      if (tid) {
+        console.log("Telegram Auth Detected:", tid);
+        localStorage.setItem("oneapp_tid", tid);
         
-        if (initialSession || localStorage.getItem("oneapp_tid")) {
-          setIsGuest(true);
+        const { error } = await supabase.auth.signInAnonymously({
+          options: { data: { telegram_id: tid } }
+        });
+
+        if (!error) {
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
-      } catch (e) {
-        print("Auth Error:", e);
-      } finally {
-        setLoading(false);
       }
+
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      setSession(initialSession);
+      if (initialSession || localStorage.getItem("oneapp_tid")) {
+        setIsGuest(true);
+      }
+      setLoading(false);
     };
 
     initAuth();
 
-    // 2. Add Auth State Change Listener to keep UI in sync
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) setIsGuest(true);
+      if (session) setIsGuest(false);
     });
 
     return () => subscription.unsubscribe();

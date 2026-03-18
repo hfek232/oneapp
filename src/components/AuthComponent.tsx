@@ -1,82 +1,88 @@
 import React from 'react';
-import EmailAuthForm from "./EmailAuthForm";
-import TelegramLogin from "./TelegramLogin";
-import NeonCollage from "./NeonCollage";
-import { Button } from "@/components/ui/button";
 import { supabase } from '../lib/supabase';
 
-export default function AuthComponent({ onSkip }: { onSkip: () => void }) {
-  const handleGoogleLogin = () => supabase.auth.signInWithOAuth({ 
-    provider: 'google', 
-    options: { redirectTo: window.location.origin } 
-  });
+interface AuthProps {
+  onSkip: () => void;
+}
 
-  const handleFacebookLogin = () => supabase.auth.signInWithOAuth({ 
-    provider: 'facebook', 
-    options: { redirectTo: window.location.origin } 
-  });
+export default function AuthComponent({ onSkip }: AuthProps) {
+  
+  // 1. YOUR EXISTING GOOGLE/FACEBOOK LOGIC
+  const handleSocialAuth = async (provider: 'google' | 'facebook') => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+      }
+    });
+    if (error) console.error(`${provider} Auth Error:`, error.message);
+  };
+
+  // 2. THE TELEGRAM SMART LOGIC
+  const handleTelegramAuth = async () => {
+    const tg = (window as any).Telegram?.WebApp;
+    const isInsideTelegram = !!tg?.initData && tg.initData !== "";
+
+    if (isInsideTelegram) {
+      // Send the initData to your EXISTING Edge Function
+      const { data, error } = await supabase.functions.invoke('telegram-auth', {
+        body: { 
+          payload: tg.initData, 
+          type: 'tma' 
+        }
+      });
+
+      if (!error && data?.session) {
+        await supabase.auth.setSession(data.session);
+      } else {
+        console.error("Telegram Edge Auth Failed:", error);
+      }
+    } else {
+      // Redirect to Bot to enter the Mini App environment
+      window.location.href = "https://t.me/App_yehfdhdbot/oneapp";
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 pt-8 pb-12 selection:bg-[#FF3B30]/40">
-      <NeonCollage />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
+      <div className="w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-10 text-center border border-slate-100">
+        <h1 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">OneApp</h1>
 
-      <div className="text-center space-y-2 mb-10">
-        <div className="w-14 h-14 bg-white rounded-full mx-auto flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)] mb-4">
-          <span className="text-3xl font-black text-black tracking-tighter">1</span>
-        </div>
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-zinc-400 to-white bg-clip-text text-transparent">
-          OneApp
-        </h1>
-        <p className="text-[#34C759] font-mono text-xs tracking-[0.2em] uppercase">Global Social Marketplace</p>
-      </div>
-
-      <div className="w-full max-w-sm space-y-6">
-        <EmailAuthForm />
-        
-        <div className="relative py-2 flex items-center justify-center">
-          <div className="absolute w-full h-[1px] bg-zinc-900" />
-          <span className="relative bg-black px-4 text-[10px] font-black text-zinc-600 tracking-widest uppercase">
-            Start the Vibe
-          </span>
-        </div>
-
-        <div className="grid gap-3">
-          <TelegramLogin />
-          
-          <Button 
-            onClick={handleFacebookLogin} 
-            variant="outline" 
-            className="w-full h-14 rounded-full border-[#1877F2]/30 bg-black text-white gap-3 font-bold hover:bg-[#1877F2] hover:text-white transition-all active:scale-95 border-2 shadow-[0_0_15px_rgba(24,119,242,0.1)]"
+        <div className="space-y-4">
+          {/* TELEGRAM (Primary) */}
+          <button
+            onClick={handleTelegramAuth}
+            className="w-full bg-[#24A1DE] hover:bg-[#208bbf] text-white font-bold py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg"
           >
-            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            Continue with Facebook
-          </Button>
+            Continue with Telegram
+          </button>
 
-          <Button 
-            onClick={handleGoogleLogin} 
-            variant="outline" 
-            className="w-full h-14 rounded-full border-zinc-800 bg-black text-white gap-3 font-bold hover:bg-white hover:text-black transition-all active:scale-95 border-2 shadow-[0_0_10px_rgba(255,255,255,0.05)]"
-          >
-            <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
-            Continue with Google
-          </Button>
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-200"></span></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-400">Or continue with</span></div>
+          </div>
+
+          {/* GOOGLE & FACEBOOK (Your existing providers) */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => handleSocialAuth('google')}
+              className="flex items-center justify-center py-3 px-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-semibold text-slate-700"
+            >
+              Google
+            </button>
+            <button
+              onClick={() => handleSocialAuth('facebook')}
+              className="flex items-center justify-center py-3 px-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-semibold text-slate-700"
+            >
+              Facebook
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
-        <a href="/privacy" className="hover:text-pink-500 transition-colors">Privacy</a>
-        <a href="/terms" className="hover:text-orange-500 transition-colors">Terms</a>
-        <a href="/deletion" className="hover:text-red-500 transition-colors">Data Deletion</a>
+        <button onClick={onSkip} className="mt-8 text-slate-400 hover:text-slate-600 text-sm font-semibold transition-colors">
+          Browse as Guest
+        </button>
       </div>
-
-      <button 
-        onClick={onSkip} 
-        className="mt-auto text-sm font-bold text-zinc-500 hover:text-[#FFCC00] transition-colors"
-      >
-        Explore first
-      </button>
     </div>
   );
 }
