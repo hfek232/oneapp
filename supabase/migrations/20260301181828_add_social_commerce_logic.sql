@@ -1,3 +1,13 @@
+-- 0. Create profiles foundation
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT UNIQUE,
+  full_name TEXT,
+  avatar_url TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 1. Add columns to the profiles table
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS auth_user_id uuid REFERENCES auth.users(id),
